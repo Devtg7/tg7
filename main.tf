@@ -9,7 +9,7 @@ variable "create_s3" {
 resource "aws_s3_bucket_acl" "my_bucket" {
   count = var.create_s3 ? 1 : 0
   bucket = "my-bucket-${count.index + 1}"
-  acl    = "private"
+  
 }
 
 resource "aws_instance" "my_instance" {
