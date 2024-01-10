@@ -6,7 +6,7 @@ variable "create_s3" {
   type = bool
 }
 
-resource "aws_s3_bucket_acl" "my_bucket" {
+resource "aws_s3_bucket" "my_bucket" {
   count = var.create_s3 ? 1 : 0
   bucket = "my-bucket-${count.index + 1}"
   
