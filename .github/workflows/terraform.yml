@@ -1,0 +1,36 @@
+name: Terraform Apply
+
+on:
+  workflow_dispatch:
+    inputs:
+      create_s3:
+        description: 'Create S3 bucket?'
+        required: true
+        default: 'false'
+        type: boolean
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: hashicorp/setup-terraform@v2
+        with:
+          # terraform_version: 0.13.0:
+          cli_config_credentials_token: ${{ secrets.TF_API_TOKEN }}
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-east-1
+      - name: Set create_s3 variable
+        run: echo "create_s3=${{ github.event.inputs.create_s3 }}" >> terraform.tfvars
+      - name: Terraform init
+        run: terraform init
+      - name: Terraform plan
+        run: terraform plan -out plan.out
+      - name: Terraform apply
+        if: github.event.inputs.create_s3 == 'true'
+        run: terraform apply plan.out
